@@ -2,8 +2,8 @@ import requests
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import json
-import pandas as pd
 import datetime
+import pandas as pd
 
 AUTH_URL = "https://www.strava.com/oauth/token"
 ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities"
@@ -20,17 +20,12 @@ payload = {
 def get_refresh_token(authorization_code, payload):
     payload['code'] = authorization_code
     response = requests.post(AUTH_URL, data=payload, verify=False)
-#    print(response.json())
+    print(response.json())
     refresh_token = response.json()["refresh_token"]
     access_token = response.json()["access_token"]
 
   # Get athlete information
     athlete_response = requests.get(ATHLETE_INFO, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
-    
-    #create access_tokens df to store last access_tokens
-    #access_tokens = pd.Dataframe(columns = [
-    #'athlete_json', 'username', 'firstname', 'lastname','created_at' 
-    #])
     
     athlete_json = athlete_response.json()
     username = athlete_json.get('username')
@@ -46,7 +41,7 @@ def get_refresh_token(authorization_code, payload):
     print("Access Token:", access_token)
     print("Created At:", created_at)
 
-    return refresh_token, access_token
+    return refresh_token, access_token, athlete_json
 
 
 def get_activities(access_token):
@@ -104,5 +99,6 @@ def get_activities(access_token):
 
 if __name__ == "__main__":
     authorization_code = str(input('please submit authorization code from URL'))
-    refresh_token, access_token = get_refresh_token(authorization_code, payload)
-    access_token = get_activities(access_token)
+    refresh_token, access_token, athletes_json = get_refresh_token(authorization_code, payload)
+    activities_list = get_activities(access_token)
+    
