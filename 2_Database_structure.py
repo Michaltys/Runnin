@@ -1,12 +1,19 @@
 import json
 import sqlite3
 from sqlite3 import Error
-import strava_work as sw
+from CollectionProcess import get_refresh_token
 import os
+import csv
 
+payload = {
+    'client_id': '106874',
+    'client_secret': '085ccc8a42148640c782812dc57e60e5851c5516',
+    'code': 'authorization_code',
+    'grant_type': 'authorization_code',
+    'f': 'json'
+}
 
-
-#ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities"
+ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities"
 
 
 def create_connection(db_file):
@@ -25,134 +32,147 @@ def create_table(conn, create_table_sql):
     try:
         cur = conn.cursor()
         cur.execute(create_table_sql)
+        print("Table created successfully")
+    except Error as e:
+        print(e)
+
+def create_athletes_table(conn):
+    sql_create_athletes_table = """CREATE TABLE IF NOT EXISTS athletes (
+                                    athlete_ID INTEGER PRIMARY KEY,
+                                    username TEXT,
+                                    firstname TEXT,
+                                    lastname TEXT,
+                                    access_token TEXT NOT NULL,
+                                    refresh_token TEXT NOT NULL,
+                                    updated_at DATE NOT NULL,
+                                    created_at TEXT NOT NULL
+                                );"""
+
+    # Create athletes table
+    create_table(conn, sql_create_athletes_table)
+
+def insert_athlete_data(conn, athlete_json):
+    username = athlete_json.get('username') or "None"
+    firstname = athlete_json.get('firstname')
+    lastname = athlete_json.get('lastname')
+    access_token = athlete_json.get('access_token')
+    refresh_token = athlete_json.get('refresh_token')
+    created_at = athlete_json.get('created_at')
+    updated_at = athlete_json.get('updated_at')
+
+    insert_athlete = "INSERT OR IGNORE INTO athletes (username, firstname, lastname, access_token, refresh_token, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    
+    try:
+        cur = conn.cursor()
+        cur.execute(insert_athlete, (username, firstname, lastname, access_token, refresh_token, created_at, updated_at))
+        conn.commit()
+        print("Athlete data inserted successfully")
     except Error as e:
         print(e)
 
 
-    # creating a database connection
-    conn = create_connection('strava.db')
 
-    if conn is not None:
-        # Define SQL queries for creating tables
-        sql_create_athletes_table = """CREATE TABLE IF NOT EXISTS athletes (
-                                        athlete_ID INTEGER PRIMARY KEY,
-                                        activity_ID INTEGER NOT NULL,
-                                        athlete_profile_URL TEXT NOT NULL,
-                                        FOREIGN KEY (activity_id) REFERENCES activities (activity_id)
-                                    );"""
-
-        sql_create_access_tokens_table = """CREATE TABLE IF NOT EXISTS access_tokens (
-                                        athlete_id INTEGER PRIMARY KEY,
-                                        access_token TEXT NOT NULL,
-                                        refresh_token TEXT NOT NULL,
-                                        last_refresh_date DATE NOT NULL,
-                                        FOREIGN KEY (athlete_id) REFERENCES athletes (athlete_ID),
-                                        FOREIGN KEY (activity_id) REFERENCES activities (activity_id)
-                                    );"""
-
-        sql_create_activities_table = """CREATE TABLE IF NOT EXISTS activities (
-                                        Activity_id INTEGER PRIMARY KEY,
-                                        Athlete_id INTEGER NOT NULL,
-                                        Activity_type TEXT NOT NULL,
-                                        Location_country TEXT NOT NULL,
-                                        Activity_name TEXT NOT NULL,
-                                        Start_date DATE NOT NULL,
-                                        Athlete_count INTEGER NOT NULL,
-                                        Distance FLOAT NOT NULL,
-                                        Moving_time FLOAT NOT NULL,
-                                        FLOAT INTEGER NOT NULL,
-                                        AVG_speed FLOAT NOT NULL,
-                                        MAX_speed FLOAT NOT NULL,
-                                        Has_heartrate INTEGER NOT NULL,
-                                        AVG_heartrate FLOAT,
-                                        MAX_heartrate FLOAT,
-                                        kudos_count INTEGER NOT NULL,
-                                        comment_count INTEGER NOT NULL,
-
-                                        AVG_watts INTEGER,
-                                        Map_latline TEXT NOT NULL,
-                                        FOREIGN KEY (athlete_id) REFERENCES athletes (athlete_ID)
-                                        );"""
-
-        sql_create_kudoers_table = """CREATE TABLE IF NOT EXISTS kudoers (
-                                        athlete_id INTEGER,
-                                        kudo TEXT,
-                                        FOREIGN KEY (athlete_id) REFERENCES athletes (athlete_ID),
-                                        FOREIGN KEY (activity_id) REFERENCES activities (activity_id)
-                                    );"""
-
-        sql_create_comments_table = """CREATE TABLE IF NOT EXISTS comments (
-                                        athlete_id INTEGER NOT NULL,
-                                        activity_id INTEGER NOT NULL,
-                                        comments_count TEXT,
-                                        comment_1 TEXT,
-                                        comment_2 TEXT,
-                                        comment_3 TEXT,
-                                        comment_4 TEXT,
-                                        comment_5 TEXT,
-                                        comment_6 TEXT,
-                                        comment_7 TEXT,
-                                        comment_8 TEXT,
-                                        comment_9 TEXT,
-                                        comment_10 TEXT,
-                                        FOREIGN KEY (athlete_id) REFERENCES athletes (athlete_ID),
-                                        FOREIGN KEY (activity_id) REFERENCES activities (activity_id)
-                                    );"""
-
-        # Create tables
-        cur(create_table(conn, sql_create_athletes_table))
-        cur(create_table(conn, sql_create_access_tokens_table))
-        cur(create_table(conn, sql_create_activities_table))
-        cur(create_table(conn, sql_create_kudoers_table))
-        cur(create_table(conn, sql_create_comments_table))
-
-        # Insert data into tables based on API response - commit changes and close connection
-        access_token, activities = sw.get_activities(access_token)
-        # TODO: Implement inserting data into tables based on the activities retrieved from the API
-
-        
-        conn.commit()
-        conn.close()
-
-    else:
-        print("Error! Cannot create the database connection.")
+#def export_athletes_to_csv(conn, csv_file):
+#
+#    try:
+#        cur = conn.cursor()
+#        cur.execute("SELECT * FROM athletes_table")
+#        rows = cur.fetchall()
+#
+#        with open(csv_file, 'w', newline='') as file:
+#            writer = csv.writer(file)
+#            writer.writerow(["athlete_ID", "username", "firstname", "lastname", "access_token", "refresh_token", "updated_at", "created_at"])
+#            writer.writerows(rows)
+#
+#        print("Athletes exported to CSV successfully.")
+#    except Error as e:
+#        print(e)
 
 
+def display_athletes_table(conn):
+    select_athletes = "SELECT * FROM athletes"
 
-def display_tables(conn):
-    cursor = conn.cursor()
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    tables = cursor.fetchall()
+    try:
+        cur = conn.cursor()
+        cur.execute(select_athletes)
+        rows = cur.fetchall()
 
-    for table in tables:
-        print(table[0])
+        for row in rows:
+            print(row)
+
+        print("Athletes table displayed successfully.")
+    except Error as e:
+        print(e)
+
+
+def export_table_to_csv(conn, table_name, csv_file):
+    try:
+        cur = conn.cursor()
+        cur.execute(f"SELECT * FROM {table_name}")
+        rows = cur.fetchall()
+
+        with open(csv_file, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([description[0] for description in cur.description])
+            writer.writerows(rows)
+
+        print("Table exported to CSV successfully.")
+    except Error as e:
+        print(e)
+
+
+def main():
+    authorization_code = str(input('Please submit the authorization code from the URL: '))
+    refresh_token, access_token, athletes_json = get_refresh_token(authorization_code, payload)
+    
+    db_file = "athletes.db"
+    conn = create_connection(db_file)
+
+    # Create athletes table
+    create_athletes_table(conn)
 
     conn.close()
 
-def main():
-    authorization_code = str(input('please submit authorization code from URL'))
-    # refresh_token, access_token = get_refresh_token(authorization_code, payload)
+    # Reopen connection
+    conn = create_connection(db_file)
 
-    # creating a database connection
-    conn = create_connection('strava.db')
+    # Extract athlete details from athletes_json
+    username = athletes_json['username']
+    athlete_id = athletes_json['id']
+    firstname = athletes_json['firstname']
+    lastname = athletes_json['lastname']
+    updated_at = athletes_json['updated_at']
+    created_at = athletes_json['created_at']
 
-    if conn is not None:
+    # Insert athlete data into athletes table
+    athlete_data = {
+        'username': username,
+        'athlete_id': athlete_id,
+        'firstname': firstname,
+        'lastname': lastname,
+        'access_token': access_token,
+        'refresh_token': refresh_token,
+        'updated_at': updated_at,
+        'created_at': created_at
+    }
 
+    insert_athlete_data(conn, athlete_data)
 
-        # Insert data into tables based on API response - commit changes and close connection
-        access_token, activities = sw.get_activities(authorization_code)
-        # TODO: Implement inserting data into tables based on the activities retrieved from the API
+    conn = create_connection(db_file)  # Reopen connection
 
-        conn.commit()
+    display_athletes_table(conn)
 
-        # Display tables
-        display_tables(conn)
+    conn.close()
 
-        conn.close()
-    else:
-        print("Error! Cannot create the database connection.")
+#    conn = create_connection(db_file)  # Reopen connection
+#    # Export athletes to CSV
+#    csv_file = "athletes.csv"
+#    export_athletes_to_csv(conn, csv_file)
+#    conn.close()
+
+#   # Export athletes to CSV
+#    csv_file = "athletes.db"
+#    export_athletes_to_csv(csv_file, db_file)
 
 if __name__ == '__main__':
     main()
-
-
