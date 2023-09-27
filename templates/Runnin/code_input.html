@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Strava Authorization Code Input</title>
+</head>
+<body>
+    <form action="/Runnin/get-refresh-token/" method="post">
+        {% csrf_token %}
+        <label for="authorization_code">Enter Authorization Code:</label>
+        <input type="text" id="authorization_code" name="authorization_code">
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
