@@ -5,4 +5,6 @@ from Strava_integration import views as strava_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('Runnin/get-refresh-token/', strava_views.get_refresh_token, name='get-refresh-token'),
+    path('Runnin/list_athletes/', strava_views.list_athletes, name='list_athletes'),
+    #path('')
 ]

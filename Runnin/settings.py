@@ -122,7 +122,14 @@ STRAVA_CLIENT_ID = config('STRAVA_CLIENT_ID')
 STRAVA_CLIENT_SECRET = config('STRAVA_CLIENT_SECRET')
 AUTH_URL = config('AUTH_URL')
 
-
+#token exchange
 AUTH_URL = config('AUTH_URL', default='https://www.strava.com/oauth/token')
+
+#refresh_access_token
+REFRESH_ACCESS_TOKEN = "https://www.strava.com/api/v3/oauth/token"
+
+
 ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities"
+
+
 ATHLETE_INFO = "https://www.strava.com/api/v3/athlete"
