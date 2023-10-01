@@ -10,7 +10,7 @@
     <ul>
         {% for athlete in athletes %}
         <li>
-            {{ athlete.firstname }} {{ athlete.lastname }} from {{ athlete.city }}, {{ athlete.country }}
+            {{ athlete.firstname }} {{ athlete.lastname }} from {{ athlete.city }}, {{ athlete.country }}, athlete_id: {{athlete.athlete_id}}
         </li>
         {% endfor %}
     </ul>

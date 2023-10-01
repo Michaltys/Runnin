@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Szczegóły aktywności</h2>
+<ul>
+    <li>Nazwa: {{ activity.name }}</li>
+    <li>Typ: {{ activity.activity_type }}</li>
+    <!-- Możesz dodać tu inne pola w podobny sposób -->
+</ul>
+<a href="{% url 'activity_list' %}">Powrót do listy</a>
+{% endblock %}
