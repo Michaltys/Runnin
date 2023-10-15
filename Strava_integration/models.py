@@ -5,9 +5,12 @@ from django.contrib import admin
 
 
 class Athlete(models.Model):
+    #token fields
     refresh_token = models.CharField(max_length=255)
     access_token = models.CharField(max_length=255)
     expires_at = models.IntegerField()
+    
+    #athlete fields
     athlete_id = models.IntegerField(unique=True)
     firstname = models.CharField(max_length=50)
     lastname = models.CharField(max_length=50)
@@ -17,15 +20,16 @@ class Athlete(models.Model):
     sex = models.CharField(max_length=5)
 
 
+
 class Activity(models.Model):
     #general activity details used in the list of all activities
     athlete = models.ForeignKey('Athlete', on_delete=models.CASCADE, related_name="activities", db_column="athlete_id") 
     activity_id = models.BigIntegerField(unique=True)
     name = models.CharField(max_length=255)
     activity_type = models.CharField(max_length=50)
-    start_date = models.DateTimeField()
+    start_date = models.DateTimeField(null = True, blank = True)
     external_id = models.CharField(max_length=255)
-    upload_id = models.BigIntegerField()
+    upload_id = models.BigIntegerField(null=True, blank=True)
     athlete_count = models.IntegerField()
     resource_state = models.IntegerField()  #Resource state [int], indicates level of detail. Possible values: 1 -> "meta", 2 -> "summary", 3 -> "detail"
     photo_count = models.IntegerField()
@@ -46,7 +50,20 @@ class Activity(models.Model):
     kudos_count = models.IntegerField()
     comment_count = models.IntegerField()
     
-    
+    average_heartrate = models.FloatField(null=True, blank=True)
+    average_temp = models.IntegerField(null=True, blank=True)
+    has_kudoed = models.BooleanField(default=False)
+    max_heartrate = models.FloatField(null=True, blank=True)
+    pr_count = models.IntegerField(default=0)
+    total_photo_count = models.IntegerField(default=0)
+
+class Comment(models.Model):
+    athlete = models.ForeignKey(Athlete, on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, null=True)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
     def __str__(self):
         return self.name
 

@@ -1,18 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>List of Activities</title>
-</head>
-<body>
-    <h1>List of Activities for Athlete</h1>
-    <ul>
-        {% for activity in activities %}
+<h1>Activities</h1>
+<ul>
+    {% for activity in activity_data_list %}
         <li>
-            <strong>{{ activity.name }}</strong> (Typ: {{ activity.activity_type }}, Data: {{ activity.start_date }})
+            <a href="{% url 'activity_detail' athlete_id=activity.athlete.id activity_id=activity.id %}">
+                {{ activity.name }} 
+            </a>
+            <br>
+            Athlete: {{ activity.athlete.id }}
+            <br>
+            Start date: {{ activity.start_date }}
+            <br>
+            Activity_ID: {{ activity.activity_id }}
+            <br>
+            Django_ID: {{ activity.pk }}
+            <br>
+            ------
         </li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+    {% endfor %}
+</ul>

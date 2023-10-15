@@ -1,11 +1,29 @@
-{% extends "base.html" %}
+<h1>{{ activity.name }}</h1>
+<p>Athlete: {{ activity.athlete.firstname }} {{ activity.athlete.lastname }}</p> 
+<p>Type: {{ activity.activity_type }}</p>
+<p>Start Date: {{ activity.start_date }}</p>
+<p>Athlete Count: {{ activity.athlete_count }}</p>
+<p>Resource State: {{ activity.resource_state }}</p>
 
-{% block content %}
-<h2>Szczegóły aktywności</h2>
-<ul>
-    <li>Nazwa: {{ activity.name }}</li>
-    <li>Typ: {{ activity.activity_type }}</li>
-    <!-- Możesz dodać tu inne pola w podobny sposób -->
-</ul>
-<a href="{% url 'activity_list' %}">Powrót do listy</a>
-{% endblock %}
+<p>Distance: {{ activity.distance }}</p>
+<p>Moving Time: {{ activity.moving_time }}</p>
+<p>Elapsed Time: {{ activity.elapsed_time }}</p>
+<p>Average Speed: {{ activity.average_speed }}</p>
+<p>Max Speed: {{ activity.max_speed }}</p>
+<p>Average Cadence: {{ activity.average_cadence }}</p>
+<p>Total Elevation Gain: {{ activity.total_elevation_gain }}</p>
+<p>Start Latitude/Longitude: {{ activity.start_latlng }}</p>
+<p>End Latitude/Longitude: {{ activity.end_latlng }}</p>
+<p>Calories: {{ activity.calories }}</p>
+<p>Has Heartrate: {{ activity.has_heartrate }}</p>
+<p>Average Heartrate: {{ activity.average_heartrate }}</p>
+<p>Max Heartrate: {{ activity.max_heartrate }}</p>
+<p>Average Temperature: {{ activity.average_temp }}</p>
+<p>Achievement Count: {{ activity.achievement_count }}</p>
+<p>PR Count: {{ activity.pr_count }}</p>
+<p>Has Kudoed: {{ activity.has_kudoed }}</p>
+<p>Kudos Count: {{ activity.kudos_count }}</p>
+<p>Comment Count: {{ activity.comment_count }}</p>
+<p>Photo Count: {{ activity.photo_count }}</p>
+
+<!-- and so on, for all the fields that you want to display -->

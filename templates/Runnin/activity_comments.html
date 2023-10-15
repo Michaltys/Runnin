@@ -1,0 +1,23 @@
+<!-- Runnin/templates/Runnin/activity_comments.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comments for Activity {{ activity_id }}</title>
+</head>
+<body>
+    <h1>Comments for Activity {{ activity_id }}</h1>
+    <ul>
+        {% for comment in comments %}
+            <li>
+                <strong>{{ comment.athlete.firstname }} {{ comment.athlete.lastname }}</strong>: {{ comment.text }}
+                <br>
+                <small>Posted on {{ comment.created_at }}</small>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'activity_detail' athlete_id=athlete_id activity_id=activity_id %}">Back to Activity Detail</a>
+</body>
+</html>
