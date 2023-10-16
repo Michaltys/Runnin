@@ -3,11 +3,7 @@ import requests
 from Strava_integration.models import Athlete, Activity, Comment
 from django.conf import settings
 from django.utils import timezone
-from django.http import JsonResponse, Http404
-
-
-#landing page
-# Runnin/views.py
+from django.http import JsonResponse, Http404, HttpResponseServerError, HttpResponseNotFound
 
 
 def landing_page(request):
@@ -93,7 +89,6 @@ def list_athletes(request):
     return render(request, 'Runnin/athlete_list.html', {'athletes': athletes})
 
 
-
 def get_activities(request, athlete_id):
     #gets athlete's all activities list
     try:
@@ -132,78 +127,142 @@ def get_activities(request, athlete_id):
     return render(request, 'Runnin/activities_list.html', {'activity_data_list': activity_data_list})  # Jeśli chcesz użyć szablonu
     
 
-
 def get_activities_instance(activity_data, athlete):
     """Zapisuje pojedynczą aktywność do bazy danych."""
-    
-    activity, created = Activity.objects.get_or_create(
-        activity_id=activity_data['id'],
-        defaults={
-            'athlete': athlete,
-            'name': activity_data.get('name', ''),
-            'activity_type': activity_data.get('type', ''),
-            'start_date': activity_data.get('start_date', None),
-            'external_id': activity_data.get('external_id', ''),
-            'upload_id': activity_data.get('upload_id', 0),
-            'athlete_count': activity_data.get('athlete_count', 0),
-            'resource_state': activity_data.get('resource_state', 1),
-            'photo_count': activity_data.get('photo_count', 0),
-            'distance': activity_data.get('distance', 0.0),
-            'moving_time': activity_data.get('moving_time', 0),
-            'elapsed_time': activity_data.get('elapsed_time', 0),
-            'average_speed': activity_data.get('average_speed', 0.0),
-            'max_speed': activity_data.get('max_speed', 0.0),
-            'average_cadence': activity_data.get('average_cadence', None),
-            'total_elevation_gain': activity_data.get('total_elevation_gain', 0.0),
-            'start_latlng': ','.join(map(str, activity_data.get('start_latlng', []))),
-            'end_latlng': ','.join(map(str, activity_data.get('end_latlng', []))),
-            'calories': activity_data.get('calories', 0),
-            'has_heartrate': activity_data.get('has_heartrate', False),
-            'achievement_count': activity_data.get('achievement_count', 0),
-            'kudos_count': activity_data.get('kudos_count', 0),
-            'comment_count': activity_data.get('comment_count', 0),
-            'average_temp': activity_data.get('average_temp', None),
-            'average_heartrate': activity_data.get('average_heartrate', None),
-            'max_heartrate': activity_data.get('max_heartrate', None),
-            'pr_count': activity_data.get('pr_count', 0),
-            'total_photo_count': activity_data.get('total_photo_count', 0),
-            'has_kudoed': activity_data.get('has_kudoed', False)
-            # Add other fields here if needed
-        }
-    )
-    
-    activity.name = activity_data.get('name', '')
-    activity.activity_type = activity_data.get('type', '')
-    activity.start_date = activity_data.get('start_date', None)
-    activity.external_id = activity_data.get('external_id', '')
-    activity.upload_id = activity_data.get('upload_id', 0)
-    activity.athlete_count = activity_data.get('athlete_count', 0)
-    activity.resource_state = activity_data.get('resource_state', 1)
-    activity.photo_count = activity_data.get('photo_count', 0)
-    activity.distance = activity_data.get('distance', 0.0)
-    activity.moving_time = activity_data.get('moving_time', 0)
-    activity.elapsed_time = activity_data.get('elapsed_time', 0)
-    activity.average_speed = activity_data.get('average_speed', 0.0)
-    activity.max_speed = activity_data.get('max_speed', 0.0)
-    activity.average_cadence = activity_data.get('average_cadence', None)
-    activity.total_elevation_gain = activity_data.get('total_elevation_gain', 0.0)
-    activity.start_latlng = ','.join(map(str, activity_data.get('start_latlng', [])))
-    activity.end_latlng = ','.join(map(str, activity_data.get('end_latlng', [])))
-    activity.calories = activity_data.get('calories', 0)
-    activity.has_heartrate = activity_data.get('has_heartrate', False)
-    activity.achievement_count = activity_data.get('achievement_count', 0)
-    activity.kudos_count = activity_data.get('kudos_count', 0)
-    activity.comment_count = activity_data.get('comment_count', 0)
-    activity.average_temp = activity_data.get('average_temp', None)
-    activity.average_heartrate = activity_data.get('average_heartrate', None)
-    activity.max_heartrate = activity_data.get('max_heartrate', None)
-    activity.pr_count = activity_data.get('pr_count', 0)
-    activity.total_photo_count = activity_data.get('total_photo_count', 0)
-    activity.has_kudoed = activity_data.get('has_kudoed', False)
 
-    activity.save()
-    
+    defaults = {
+        'athlete': athlete,
+        'name': activity_data.get('name', ''),
+        'activity_type': activity_data.get('type', ''),
+        'start_date': activity_data.get('start_date', None),
+        'external_id': activity_data.get('external_id', ''),
+        'upload_id': activity_data.get('upload_id', 0),
+        'athlete_count': activity_data.get('athlete_count', 0),
+        'resource_state': activity_data.get('resource_state', 1),
+        'photo_count': activity_data.get('photo_count', 0),
+        'distance': activity_data.get('distance', 0.0),
+        'moving_time': activity_data.get('moving_time', 0),
+        'elapsed_time': activity_data.get('elapsed_time', 0),
+        'average_speed': activity_data.get('average_speed', 0.0),
+        'max_speed': activity_data.get('max_speed', 0.0),
+        'average_cadence': activity_data.get('average_cadence', None),
+        'total_elevation_gain': activity_data.get('total_elevation_gain', 0.0),
+        'start_latlng': ','.join(map(str, activity_data.get('start_latlng', []))),
+        'end_latlng': ','.join(map(str, activity_data.get('end_latlng', []))),
+        'calories': activity_data.get('calories', 0),
+        'has_heartrate': activity_data.get('has_heartrate', False),
+        'achievement_count': activity_data.get('achievement_count', 0),
+        'kudos_count': activity_data.get('kudos_count', 0),
+        'comment_count': activity_data.get('comment_count', 0),
+        'average_temp': activity_data.get('average_temp', None),
+        'average_heartrate': activity_data.get('average_heartrate', None),
+        'max_heartrate': activity_data.get('max_heartrate', None),
+        'pr_count': activity_data.get('pr_count', 0),
+        'total_photo_count': activity_data.get('total_photo_count', 0),
+        'has_kudoed': activity_data.get('has_kudoed', False)
+    }
+
+    activity, created = Activity.objects.get_or_create(activity_id=activity_data['id'], defaults=defaults)
+
+    # Update only if the object already existed
+    if not created:
+        for key, value in defaults.items():
+            setattr(activity, key, value)
+        activity.save()
+
     return activity, created
+
+def update_activities(request):
+    athletes = Athlete.objects.all()
+    for athlete in athletes:
+        get_activities(request, athlete.id)
+    
+    
+    return JsonResponse({"message": "Activities updated for all athletes"})
+
+
+
+#stare get_activities_instance z get_or_create()
+#def get_activities_instance(activity_data, athlete):
+#    """Zapisuje pojedynczą aktywność do bazy danych."""
+#    
+#    activity, created = Activity.objects.get_or_create(
+#        activity_id=activity_data['id'],
+#        defaults={
+#            'athlete': athlete,
+#            'name': activity_data.get('name', ''),
+#            'activity_type': activity_data.get('type', ''),
+#            'start_date': activity_data.get('start_date', None),
+#            'external_id': activity_data.get('external_id', ''),
+#            'upload_id': activity_data.get('upload_id', 0),
+#            'athlete_count': activity_data.get('athlete_count', 0),
+#            'resource_state': activity_data.get('resource_state', 1),
+#            'photo_count': activity_data.get('photo_count', 0),
+#            'distance': activity_data.get('distance', 0.0),
+#            'moving_time': activity_data.get('moving_time', 0),
+#            'elapsed_time': activity_data.get('elapsed_time', 0),
+#            'average_speed': activity_data.get('average_speed', 0.0),
+#            'max_speed': activity_data.get('max_speed', 0.0),
+#            'average_cadence': activity_data.get('average_cadence', None),
+#            'total_elevation_gain': activity_data.get('total_elevation_gain', 0.0),
+#            'start_latlng': ','.join(map(str, activity_data.get('start_latlng', []))),
+#            'end_latlng': ','.join(map(str, activity_data.get('end_latlng', []))),
+#            'calories': activity_data.get('calories', 0),
+#            'has_heartrate': activity_data.get('has_heartrate', False),
+#            'achievement_count': activity_data.get('achievement_count', 0),
+#            'kudos_count': activity_data.get('kudos_count', 0),
+#            'comment_count': activity_data.get('comment_count', 0),
+#            'average_temp': activity_data.get('average_temp', None),
+#            'average_heartrate': activity_data.get('average_heartrate', None),
+#            'max_heartrate': activity_data.get('max_heartrate', None),
+#            'pr_count': activity_data.get('pr_count', 0),
+#            'total_photo_count': activity_data.get('total_photo_count', 0),
+#            'has_kudoed': activity_data.get('has_kudoed', False)
+#            # Add other fields here if needed
+#        }
+#        
+#        
+#    )
+#    
+#    activity.name = activity_data.get('name', '')
+#    activity.activity_type = activity_data.get('type', '')
+#    activity.start_date = activity_data.get('start_date', None)
+#    activity.external_id = activity_data.get('external_id', '')
+#    activity.upload_id = activity_data.get('upload_id', 0)
+#    activity.athlete_count = activity_data.get('athlete_count', 0)
+#    activity.resource_state = activity_data.get('resource_state', 1)
+#    activity.photo_count = activity_data.get('photo_count', 0)
+#    activity.distance = activity_data.get('distance', 0.0)
+#    activity.moving_time = activity_data.get('moving_time', 0)
+#    activity.elapsed_time = activity_data.get('elapsed_time', 0)
+#    activity.average_speed = activity_data.get('average_speed', 0.0)
+#    activity.max_speed = activity_data.get('max_speed', 0.0)
+#    activity.average_cadence = activity_data.get('average_cadence', None)
+#    activity.total_elevation_gain = activity_data.get('total_elevation_gain', 0.0)
+#    activity.start_latlng = ','.join(map(str, activity_data.get('start_latlng', [])))
+#    activity.end_latlng = ','.join(map(str, activity_data.get('end_latlng', [])))
+#    activity.calories = activity_data.get('calories', 0)
+#    activity.has_heartrate = activity_data.get('has_heartrate', False)
+#    activity.achievement_count = activity_data.get('achievement_count', 0)
+#    activity.kudos_count = activity_data.get('kudos_count', 0)
+#    activity.comment_count = activity_data.get('comment_count', 0)
+#    activity.average_temp = activity_data.get('average_temp', None)
+#    activity.average_heartrate = activity_data.get('average_heartrate', None)
+#    activity.max_heartrate = activity_data.get('max_heartrate', None)
+#    activity.pr_count = activity_data.get('pr_count', 0)
+#    activity.total_photo_count = activity_data.get('total_photo_count', 0)
+#    activity.has_kudoed = activity_data.get('has_kudoed', False)
+#
+#    
+#    activity.save()
+#
+#    
+#    
+#    return activity, created
+
+
+
+
 
 
 def activities_list(request, athlete_id):
@@ -242,6 +301,7 @@ def activity_detail(request, athlete_id, activity_id):
     except Activity.DoesNotExist:
         print(f"No activity found with id: {activity_id} for athlete {athlete.firstname}")
         # Handle error as needed
+
     
     context = {
         'athlete': athlete,
@@ -249,39 +309,55 @@ def activity_detail(request, athlete_id, activity_id):
     }
     return render(request, 'Runnin/activity_detail.html', context)
 
-def activity_comments(request, athlete_id, activity_id):
-    athlete = get_object_or_404(Athlete, pk=athlete_id)
-
-    # Refresh the token if necessary
-    if not refresh_access_token(athlete):
-        # handle error, e.g., redirect to an error page or log the user out
-        pass
+def activity_comments(request, activity_id):
     
-    # Fetch comments from Strava API
-    STRAVA_COMMENT_URL = f"https://www.strava.com/api/v3/activities/{activity_id}/comments"
+    try:
+        activity = Activity.objects.get(id=activity_id)
+        athlete = activity.athlete  
+    except Activity.DoesNotExist:
+        raise Http404(f"Activity with ID {activity_id} does not exist.")
+    
+    if not is_token_valid(athlete):
+        refreshed = refresh_access_token(athlete)
+        if not refreshed:
+            # Wyrzucanie błędu, co spowoduje, że Django pokaże standardowy komunikat o błędzie
+            raise ValueError("Failed to refresh access token")
+        
+    COMMENTS_URL = settings.COMMENTS_URL
+
+
+    #trzeba tutaj dodać logikę podobą do wyżej w
+#
+    #if not is_token_valid(athlete):
+    #    refreshed = refresh_access_token(athlete)
+    #    if not refreshed:
+    #        # Wyrzucanie błędu, co spowoduje, że Django pokaże standardowy komunikat o błędzie
+    #        raise ValueError("Failed to refresh access token")
+
     headers = {"Authorization": f"Bearer {athlete.access_token}"}
-    response = requests.get(STRAVA_COMMENT_URL, headers=headers)
-    
-    comments = response.json() if response.status_code == 200 else []
+    response = requests.get(COMMENTS_URL, headers=headers)
 
-    # Store comments in your database
+    if response.status_code != 200:
+        raise Exception(f"Error fetching data from Strava: {response.status_code} - {response.text}")
+
+    comments = response.json()
+
+    #  Zapisanie w bazie
     Comment.objects.filter(activity_id=activity_id, athlete=athlete).delete()
     for comment_data in comments:
         Comment.objects.create(
             athlete=athlete,
             activity_id=activity_id,
             text=comment_data['text'],
-            created_at=comment_data['created_at'],
-            # Set other fields as needed
+            created_at=comment_data['created_at']
         )
     
-    # Retrieve comments from your database
+    #  Wyświetlenie komentarzy
     stored_comments = Comment.objects.filter(activity_id=activity_id, athlete=athlete)
-
     context = {
         'comments': stored_comments,
         'activity_id': activity_id,
     }
-    print(context)  # or use logging
-
     return render(request, 'Runnin/activity_comments.html', context)
+
+

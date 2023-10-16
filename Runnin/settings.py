@@ -131,5 +131,6 @@ REFRESH_ACCESS_TOKEN = "https://www.strava.com/api/v3/oauth/token"
 
 ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities"
 
+COMMENTS_URL = "https://www.strava.com/api/v3/activities/comments"
 
 ATHLETE_INFO = "https://www.strava.com/api/v3/athlete"

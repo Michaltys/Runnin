@@ -10,6 +10,7 @@ urlpatterns = [
     path('Runnin/list_athletes/', strava_views.list_athletes, name='list_athletes'),
     path('Runnin/activities_list/<int:athlete_id>/', strava_views.activities_list, name='activities_list'),
     path('Runnin/activity_details/<int:athlete_id>/activity/<int:activity_id>/', strava_views.activity_detail, name='activity_detail'),
-    path('Runnin/comments/<int:athlete_id>/activity/<int:activity_id>/', strava_views.activity_comments, name='activity_comments'),
+    path('Runnin/activity/<int:activity_id>/comments', strava_views.activity_comments, name='activity_comments'),
+    path('Runnin/update_activities', strava_views.update_activities, name='update_activities'),
 
 ]
