@@ -12,5 +12,7 @@ urlpatterns = [
     path('Runnin/activity_details/<int:athlete_id>/activity/<int:activity_id>/', strava_views.activity_detail, name='activity_detail'),
     path('Runnin/activity/<int:activity_id>/comments', strava_views.activity_comments, name='activity_comments'),
     path('Runnin/update_activities', strava_views.update_activities, name='update_activities'),
+    path('Runnin/activity/<int:activity_id>/kudos', strava_views.activity_kudos, name='activity_kudos'),
+    
 
 ]

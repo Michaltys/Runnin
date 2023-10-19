@@ -26,4 +26,8 @@
 <p>Comment Count: {{ activity.comment_count }}</p>
 <p>Photo Count: {{ activity.photo_count }}</p>
 
+<a href="{% url 'activity_comments' activity_id=activity.id %}">See Comments ({{ activity.comment_count }})</a>
+<a href="{% url 'activity_kudos' activity_id=activity.id %}">View all {{ activity.kudos_count }} kudos</a>
+
+
 <!-- and so on, for all the fields that you want to display -->

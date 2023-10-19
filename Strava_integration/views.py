@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 import requests
-from Strava_integration.models import Athlete, Activity, Comment
+from Strava_integration.models import Athlete, Activity, Comment, Kudoers
 from django.conf import settings
 from django.utils import timezone
 from django.http import JsonResponse, Http404, HttpResponseServerError, HttpResponseNotFound
@@ -182,92 +182,9 @@ def update_activities(request):
 
 
 
-#stare get_activities_instance z get_or_create()
-#def get_activities_instance(activity_data, athlete):
-#    """Zapisuje pojedynczą aktywność do bazy danych."""
-#    
-#    activity, created = Activity.objects.get_or_create(
-#        activity_id=activity_data['id'],
-#        defaults={
-#            'athlete': athlete,
-#            'name': activity_data.get('name', ''),
-#            'activity_type': activity_data.get('type', ''),
-#            'start_date': activity_data.get('start_date', None),
-#            'external_id': activity_data.get('external_id', ''),
-#            'upload_id': activity_data.get('upload_id', 0),
-#            'athlete_count': activity_data.get('athlete_count', 0),
-#            'resource_state': activity_data.get('resource_state', 1),
-#            'photo_count': activity_data.get('photo_count', 0),
-#            'distance': activity_data.get('distance', 0.0),
-#            'moving_time': activity_data.get('moving_time', 0),
-#            'elapsed_time': activity_data.get('elapsed_time', 0),
-#            'average_speed': activity_data.get('average_speed', 0.0),
-#            'max_speed': activity_data.get('max_speed', 0.0),
-#            'average_cadence': activity_data.get('average_cadence', None),
-#            'total_elevation_gain': activity_data.get('total_elevation_gain', 0.0),
-#            'start_latlng': ','.join(map(str, activity_data.get('start_latlng', []))),
-#            'end_latlng': ','.join(map(str, activity_data.get('end_latlng', []))),
-#            'calories': activity_data.get('calories', 0),
-#            'has_heartrate': activity_data.get('has_heartrate', False),
-#            'achievement_count': activity_data.get('achievement_count', 0),
-#            'kudos_count': activity_data.get('kudos_count', 0),
-#            'comment_count': activity_data.get('comment_count', 0),
-#            'average_temp': activity_data.get('average_temp', None),
-#            'average_heartrate': activity_data.get('average_heartrate', None),
-#            'max_heartrate': activity_data.get('max_heartrate', None),
-#            'pr_count': activity_data.get('pr_count', 0),
-#            'total_photo_count': activity_data.get('total_photo_count', 0),
-#            'has_kudoed': activity_data.get('has_kudoed', False)
-#            # Add other fields here if needed
-#        }
-#        
-#        
-#    )
-#    
-#    activity.name = activity_data.get('name', '')
-#    activity.activity_type = activity_data.get('type', '')
-#    activity.start_date = activity_data.get('start_date', None)
-#    activity.external_id = activity_data.get('external_id', '')
-#    activity.upload_id = activity_data.get('upload_id', 0)
-#    activity.athlete_count = activity_data.get('athlete_count', 0)
-#    activity.resource_state = activity_data.get('resource_state', 1)
-#    activity.photo_count = activity_data.get('photo_count', 0)
-#    activity.distance = activity_data.get('distance', 0.0)
-#    activity.moving_time = activity_data.get('moving_time', 0)
-#    activity.elapsed_time = activity_data.get('elapsed_time', 0)
-#    activity.average_speed = activity_data.get('average_speed', 0.0)
-#    activity.max_speed = activity_data.get('max_speed', 0.0)
-#    activity.average_cadence = activity_data.get('average_cadence', None)
-#    activity.total_elevation_gain = activity_data.get('total_elevation_gain', 0.0)
-#    activity.start_latlng = ','.join(map(str, activity_data.get('start_latlng', [])))
-#    activity.end_latlng = ','.join(map(str, activity_data.get('end_latlng', [])))
-#    activity.calories = activity_data.get('calories', 0)
-#    activity.has_heartrate = activity_data.get('has_heartrate', False)
-#    activity.achievement_count = activity_data.get('achievement_count', 0)
-#    activity.kudos_count = activity_data.get('kudos_count', 0)
-#    activity.comment_count = activity_data.get('comment_count', 0)
-#    activity.average_temp = activity_data.get('average_temp', None)
-#    activity.average_heartrate = activity_data.get('average_heartrate', None)
-#    activity.max_heartrate = activity_data.get('max_heartrate', None)
-#    activity.pr_count = activity_data.get('pr_count', 0)
-#    activity.total_photo_count = activity_data.get('total_photo_count', 0)
-#    activity.has_kudoed = activity_data.get('has_kudoed', False)
-#
-#    
-#    activity.save()
-#
-#    
-#    
-#    return activity, created
-
-
-
-
-
-
 def activities_list(request, athlete_id):
     athlete = get_object_or_404(Athlete, pk=athlete_id)
-    activity_data_list = Activity.objects.filter(athlete=athlete)
+    activity_data_list = Activity.objects.filter(athlete=athlete).order_by('-start_date')
 
     # Debug
     print("Debugging Athlete:")
@@ -310,7 +227,7 @@ def activity_detail(request, athlete_id, activity_id):
     return render(request, 'Runnin/activity_detail.html', context)
 
 def activity_comments(request, activity_id):
-    
+
     try:
         activity = Activity.objects.get(id=activity_id)
         athlete = activity.athlete  
@@ -320,44 +237,83 @@ def activity_comments(request, activity_id):
     if not is_token_valid(athlete):
         refreshed = refresh_access_token(athlete)
         if not refreshed:
-            # Wyrzucanie błędu, co spowoduje, że Django pokaże standardowy komunikat o błędzie
             raise ValueError("Failed to refresh access token")
-        
-    COMMENTS_URL = settings.COMMENTS_URL
 
-
-    #trzeba tutaj dodać logikę podobą do wyżej w
-#
-    #if not is_token_valid(athlete):
-    #    refreshed = refresh_access_token(athlete)
-    #    if not refreshed:
-    #        # Wyrzucanie błędu, co spowoduje, że Django pokaże standardowy komunikat o błędzie
-    #        raise ValueError("Failed to refresh access token")
+    # Ustal prawidłowy URL do komentarzy
+    COMMENTS_URL_TEMPLATE = "https://www.strava.com/api/v3/activities/{}/comments"
+    comments_url = COMMENTS_URL_TEMPLATE.format(activity.activity_id)
 
     headers = {"Authorization": f"Bearer {athlete.access_token}"}
-    response = requests.get(COMMENTS_URL, headers=headers)
-
+    response = requests.get(comments_url, headers=headers)
+    
     if response.status_code != 200:
+        print(f"Fetching comments from: {comments_url}")
         raise Exception(f"Error fetching data from Strava: {response.status_code} - {response.text}")
 
-    comments = response.json()
+    comments_data = response.json()
 
-    #  Zapisanie w bazie
     Comment.objects.filter(activity_id=activity_id, athlete=athlete).delete()
-    for comment_data in comments:
+    for comment_data in comments_data:
+        c_firstname = comment_data.get('athlete').get('firstname')
+        c_lastname = comment_data.get('athlete').get('lastname')
+        text = comment_data.get('text')
         Comment.objects.create(
             athlete=athlete,
             activity_id=activity_id,
-            text=comment_data['text'],
+            text=f"{c_firstname} {c_lastname}, comment: {text}",
             created_at=comment_data['created_at']
         )
     
-    #  Wyświetlenie komentarzy
     stored_comments = Comment.objects.filter(activity_id=activity_id, athlete=athlete)
     context = {
-        'comments': stored_comments,
-        'activity_id': activity_id,
+    'comments': stored_comments,
+    'activity_id': activity_id,
+    'athlete_id': athlete.id,
     }
+
     return render(request, 'Runnin/activity_comments.html', context)
 
 
+def activity_kudos(request, activity_id):
+    try:
+        activity = Activity.objects.get(id=activity_id)
+        athlete = activity.athlete  
+    except Activity.DoesNotExist:
+        raise Http404(f"Activity with ID {activity_id} does not exist.")
+    
+    if not is_token_valid(athlete):
+        refreshed = refresh_access_token(athlete)
+        if not refreshed:
+            raise ValueError("Failed to refresh access token")
+
+    # Ustal prawidłowy URL do komentarzy
+    KUDOERS_URL_TEMPLATE = "https://www.strava.com/api/v3/activities/{}/kudos"
+    kudoers_url = KUDOERS_URL_TEMPLATE.format(activity.activity_id)
+
+    headers = {"Authorization": f"Bearer {athlete.access_token}"}
+    response = requests.get(kudoers_url, headers=headers)
+    
+    if response.status_code != 200:
+        print(f"Fetching comments from: {kudoers_url}")
+        raise Exception(f"Error fetching data from Strava: {response.status_code} - {response.text}")
+    
+    kudoers_data = response.json()
+
+    Kudoers.objects.filter(activity_id=activity_id, athlete=athlete).delete()
+    for kudoer_data in kudoers_data:
+        c_firstname = kudoer_data.get('firstname')
+        c_lastname = kudoer_data.get('lastname')
+        Kudoers.objects.create(
+            athlete=athlete,
+            activity_id=activity_id,
+            kudoer =f"{c_firstname} {c_lastname}",
+        )
+    
+    stored_kudos = Kudoers.objects.filter(activity_id=activity_id, athlete=athlete)
+    context = {
+    'kudoer': stored_kudos,
+    'activity_id': activity_id,
+    'athlete_id': athlete.id,
+    }
+
+    return render(request, 'Runnin/kudos_list.html', context)

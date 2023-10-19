@@ -1,0 +1,21 @@
+<!-- Runnin/templates/Runnin/activity_kudoers.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kudoers for Activity {{ activity_id }}</title>
+</head>
+<body>
+    <h1>Kudoers for Activity {{ activity_id }}</h1>
+    <ul>
+        {% for kudo in kudoer %}
+            <li>
+                {{ kudo.kudoer }} gave a kudo! 
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'activity_detail' athlete_id=athlete_id activity_id=activity_id %}">Back to Activity Detail</a>
+</body>
+</html>

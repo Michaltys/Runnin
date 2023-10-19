@@ -1,20 +1,52 @@
 <!-- Runnin/templates/Runnin/landing_page.html -->
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Runnin</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Welcome to Runnin!</title>
+
+
 </head>
 <body>
+
+<div class="container mt-5">
     <h1>Welcome to Runnin!</h1>
-    <p>Your journey to sports data analysis starts here! </p>
+    <p class="lead">Your journey to sports data analysis starts here!</p>
+    <h3>Navigation</h3>
     <nav>
-        <ul>
-            <li><a href="{% url 'list_athletes' %}">List of Athletes</a></li>
+        <ul class="list-group">
+            <li class="list-group-item">
+                <a href="{% url 'list_athletes' %}">List of Athletes</a>
+            </li>
             <!-- Add more navigation links as per your application's functionality -->
         </ul>
     </nav>
+</div>
+
+<!-- Opcjonalnie: Bootstrap JS (wymagany np. do działania niektórych komponentów, jak modale) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+<style>
+    #landingImage {
+        height: 300px;
+        max-width: 70%; /* zachowuje proporcje obrazu */
+        display: block;
+        margin: 0 auto;
+    }
+</style>
+
+
+<img src="{% static 'images/landing_page.png' %}" alt="Runnin Background Image" id="landingImage">
+
+
 </body>
 </html>
+
+
+

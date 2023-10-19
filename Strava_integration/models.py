@@ -63,6 +63,11 @@ class Comment(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+class Kudoers(models.Model):
+    athlete = models.ForeignKey(Athlete, on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, null=True)
+    kudoer = models.CharField(max_length=255)
+
 
     def __str__(self):
         return self.name
