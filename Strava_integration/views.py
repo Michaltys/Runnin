@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.http import JsonResponse, Http404, HttpResponseServerError, HttpResponseNotFound
 
 
-def landing_page(request):
+def landing_page(request): 
     return render(request, 'Runnin/Runnin.html')
 
 
