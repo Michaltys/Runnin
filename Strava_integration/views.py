@@ -105,11 +105,24 @@ def get_activities(request, athlete_id):
     headers = {
         'Authorization': f"Bearer {athlete.access_token}"
     }
-    param = {'per_page': 200, 'page': 1}
-
     ACTIVITIES_URL = settings.ACTIVITIES_URL
+    page = 1
+    per_page = 200
+    all_activities = []
 
-    response = requests.get(ACTIVITIES_URL, headers=headers, params=param)
+    while True:
+        params = {'per_page': per_page, 'page': page}
+        response = requests.get(ACTIVITIES_URL, headers=headers, params=params)
+
+        if response.status_code != 200:
+            break  # Jeśli wystąpił błąd, przerwij pętlę
+
+        activities_page = response.json()
+        if not activities_page:
+            break  # Jeśli strona nie ma aktywności, przerwij pętlę
+
+        all_activities.extend(activities_page)
+        page += 1
     
 
     if response.status_code != 200:
