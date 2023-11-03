@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 import requests
 from Strava_integration.models import Athlete, Activity, Comment, Kudoers
 from django.conf import settings
-from django.utils import timezone
 from django.http import JsonResponse, Http404, HttpResponseServerError, HttpResponseNotFound
+from django.utils import timezone
 
 
 def landing_page(request): 
@@ -100,31 +100,13 @@ def get_activities(request, athlete_id):
         if not refresh_access_token(athlete):
             # Handle token refresh failure e.g. return, raise error, log etc.
             return JsonResponse({"error": "Failed to refresh access token"}, status=500)
-
-
     headers = {
         'Authorization': f"Bearer {athlete.access_token}"
     }
+    param = {'per_page': 200, 'page': 1}
     ACTIVITIES_URL = settings.ACTIVITIES_URL
-    page = 1
-    per_page = 200
-    all_activities = []
-
-    while True:
-        params = {'per_page': per_page, 'page': page}
-        response = requests.get(ACTIVITIES_URL, headers=headers, params=params)
-
-        if response.status_code != 200:
-            break  # Jeśli wystąpił błąd, przerwij pętlę
-
-        activities_page = response.json()
-        if not activities_page:
-            break  # Jeśli strona nie ma aktywności, przerwij pętlę
-
-        all_activities.extend(activities_page)
-        page += 1
+    response = requests.get(ACTIVITIES_URL, headers=headers, params=param)
     
-
     if response.status_code != 200:
         return JsonResponse({"error": f"Error fetching data: {response.status_code} - {response.text}"}, status=response.status_code)
     
@@ -137,7 +119,7 @@ def get_activities(request, athlete_id):
     
     for activity_data in activity_data_list:
         get_activities_instance(activity_data, athlete)
-    return render(request, 'Runnin/activities_list.html', {'activity_data_list': activity_data_list})  # Jeśli chcesz użyć szablonu
+    return render(request, 'Runnin/activities_list.html', {'activity_data_list': activity_data_list})
     
 
 def get_activities_instance(activity_data, athlete):
