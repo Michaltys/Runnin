@@ -16,6 +16,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Application definition
 
@@ -26,8 +27,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'Strava_integration'
+    'Strava_integration',
+    'social_django',
+    
+
 ]
+
+AUTHENTICATION_BACKENDS = (
+
+    'social_core.backends.strava.StravaOAuth2', 
+    'social_core.backends.strava.StravaOAuth', 
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from Strava_integration import views as strava_views
 
 
@@ -13,6 +13,10 @@ urlpatterns = [
     path('Runnin/activity/<int:activity_id>/comments', strava_views.activity_comments, name='activity_comments'),
     path('Runnin/update_activities', strava_views.update_activities, name='update_activities'),
     path('Runnin/activity/<int:activity_id>/kudos', strava_views.activity_kudos, name='activity_kudos'),
+    path('strava_success', strava_views.strava_success, name='strava_success'),
+    path('strava_error', strava_views.strava_error, name='strava_error'),
+    path('Runnin/strava_callback/', strava_views.strava_callback, name='strava_callback'),
+    path('Runnin/initiate_strava_auth/', strava_views.initiate_strava_auth, name='initiate_strava_auth'),
     
     
 

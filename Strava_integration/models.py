@@ -12,12 +12,14 @@ class Athlete(models.Model):
     
     #athlete fields
     athlete_id = models.IntegerField(unique=True)
-    firstname = models.CharField(max_length=50)
-    lastname = models.CharField(max_length=50)
-    city = models.CharField(max_length=50)
-    state = models.CharField(max_length=50)
-    country = models.CharField(max_length=20)
-    sex = models.CharField(max_length=5)
+    firstname = models.CharField(max_length=50, null = True, blank = True)
+    lastname = models.CharField(max_length=50, null = True, blank = True)
+    city = models.CharField(max_length=50, null = True, blank = True)
+    state = models.CharField(max_length=50, null = True, blank = True)
+    country = models.CharField(max_length=20, null = True, blank = True)
+    sex = models.CharField(max_length=5, null = True, blank = True)
+    follower_count = models.IntegerField(null = True, blank = True)
+    following_count = models.IntegerField(null = True, blank = True)
 
 
 
@@ -25,10 +27,10 @@ class Activity(models.Model):
     #general activity details used in the list of all activities
     athlete = models.ForeignKey('Athlete', on_delete=models.CASCADE, related_name="activities", db_column="athlete_id") 
     activity_id = models.BigIntegerField(unique=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, null = True, blank = True)
     activity_type = models.CharField(max_length=50)
     start_date = models.DateTimeField(null = True, blank = True)
-    external_id = models.CharField(max_length=255)
+    external_id = models.CharField(max_length=255, null = True, blank = True)
     upload_id = models.BigIntegerField(null=True, blank=True)
     athlete_count = models.IntegerField()
     resource_state = models.IntegerField()  #Resource state [int], indicates level of detail. Possible values: 1 -> "meta", 2 -> "summary", 3 -> "detail"
@@ -42,9 +44,9 @@ class Activity(models.Model):
     max_speed = models.FloatField()
     average_cadence = models.FloatField(null=True, blank=True) # Ustawienie null=True i blank=True, ponieważ nie każda aktywność będzie miała kadencję
     total_elevation_gain = models.FloatField()
-    start_latlng = models.CharField(max_length=255) # GeoDjango to be considered
-    end_latlng = models.CharField(max_length=255) # GeoDjango to be considered
-    calories = models.IntegerField()
+    start_latlng = models.CharField(max_length=255, null = True, blank = True) # GeoDjango to be considered
+    end_latlng = models.CharField(max_length=255, null = True, blank = True) # GeoDjango to be considered
+    calories = models.IntegerField(null = True, blank = True)
     has_heartrate = models.BooleanField(null=True, blank=True)
     achievement_count = models.IntegerField()
     kudos_count = models.IntegerField()
@@ -54,7 +56,7 @@ class Activity(models.Model):
     average_temp = models.IntegerField(null=True, blank=True)
     has_kudoed = models.BooleanField(default=False)
     max_heartrate = models.FloatField(null=True, blank=True)
-    pr_count = models.IntegerField(default=0)
+    pr_count = models.IntegerField(default=0, null = True, blank = True)
     total_photo_count = models.IntegerField(default=0)
 
 class Comment(models.Model):
