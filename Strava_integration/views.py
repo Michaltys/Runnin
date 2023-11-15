@@ -5,11 +5,11 @@ from django.conf import settings
 from django.http import JsonResponse, Http404, HttpResponseServerError, HttpResponseNotFound
 from django.utils import timezone
 
-
+#landing page of the app
 def landing_page(request): 
     return render(request, 'Runnin/Runnin.html')
 
-
+#tokens trade
 def get_refresh_token(request):
     if request.method == "POST":
         authorization_code = request.POST.get('authorization_code')
@@ -33,11 +33,12 @@ def get_refresh_token(request):
     
     return render(request, 'Runnin/code_input.html')
 
-
+#checks if the access_token is valid (expires in 6hrs)
 def is_token_valid(athlete):
     #Check if the access token is valid.
     return athlete.expires_at > timezone.now().timestamp()
 
+#refresh access_token if expired
 def refresh_access_token(athlete):
     #Refresh the access token.
     payload = {
@@ -60,16 +61,17 @@ def refresh_access_token(athlete):
         return True
     return False
 
+#new part - redirected success - doesnt work cuz its meant for a server - not local
 def strava_success(request):
 
     return render(request, 'Runnin/strava_success.html')
 
-
+#new part - redirected failure - doesnt work cuz its meant for a server - not local
 def strava_error(request):
 
     return render(request, 'Runnin/strava_error.html')
 
-
+#new part - redirect token exchange - doesnt work cuz its meant for a server - not local
 def initiate_strava_auth(request):
     strava_auth_url = (
         "https://www.strava.com/oauth/authorize"
@@ -85,6 +87,7 @@ def initiate_strava_auth(request):
 
     return redirect(strava_auth_url)
 
+#new part - redirect strava callback - doesnt work cuz its meant for a server - not local
 def strava_callback(request):
     auth_code = request.GET.get('code')
 
@@ -137,6 +140,7 @@ def strava_callback(request):
     else:
         return redirect('trava_error')
 
+#saving Athlete objects in db
 def create_athlete_instance(data):
     athlete_data = data.get("athlete")
     if athlete_data is None:
@@ -166,11 +170,12 @@ def create_athlete_instance(data):
     athlete.following_count = athlete_data.get("following_count")
     athlete.save()
 
+#creates a list of athletes
 def list_athletes(request):
     athletes = Athlete.objects.all()
     return render(request, 'Runnin/athlete_list.html', {'athletes': athletes})
 
-
+#get request for all athletes' activities
 def get_activities(request, athlete_id):
     #gets athlete's all activities list
     try:
@@ -189,7 +194,7 @@ def get_activities(request, athlete_id):
     ACTIVITIES_URL = settings.ACTIVITIES_URL
     all_activities = []
 
-    # Iteracja przez strony od 1 do 10
+    # iteration through pages 1-10
     for page in range(1, 20):
         param = {'per_page': 200, 'page': page}
         response = requests.get(ACTIVITIES_URL, headers=headers, params=param)
@@ -210,9 +215,8 @@ def get_activities(request, athlete_id):
 
     return render(request, 'Runnin/activities_list.html', {'activity_data_list': all_activities})
     
-
+#saves individual activity to a db
 def get_activities_instance(activity_data, athlete):
-    """Zapisuje pojedynczą aktywność do bazy danych."""
 
     defaults = {
         'athlete': athlete,
@@ -256,6 +260,7 @@ def get_activities_instance(activity_data, athlete):
 
     return activity, created
 
+#updates existing activities
 def update_activities(request):
     athletes = Athlete.objects.all()
     for athlete in athletes:
@@ -265,7 +270,7 @@ def update_activities(request):
     return JsonResponse({"message": "Activities updated for all athletes"})
 
 
-
+#the list of all activities (activity_id) for the athlete_id
 def activities_list(request, athlete_id):
     athlete = get_object_or_404(Athlete, pk=athlete_id)
     activity_data_list = Activity.objects.filter(athlete=athlete).order_by('-start_date')
@@ -285,7 +290,7 @@ def activities_list(request, athlete_id):
 
     return render(request, 'Runnin/activities_list.html', context)
 
-
+#all the data about particular activity (activity_id)
 def activity_detail(request, athlete_id, activity_id):
     print(f"Athlete ID: {athlete_id}, Activity ID: {activity_id}")
 
@@ -310,6 +315,7 @@ def activity_detail(request, athlete_id, activity_id):
     }
     return render(request, 'Runnin/activity_detail.html', context)
 
+#detailed comments view for particular activity_id
 def activity_comments(request, activity_id):
 
     try:
@@ -357,7 +363,7 @@ def activity_comments(request, activity_id):
 
     return render(request, 'Runnin/activity_comments.html', context)
 
-
+#detailed kudos view for particular activity_id
 def activity_kudos(request, activity_id):
     try:
         activity = Activity.objects.get(id=activity_id)
