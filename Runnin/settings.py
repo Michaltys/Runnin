@@ -11,12 +11,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # Secret key for Azure db
-SECRET = config('SECRET')
+#SECRET = config('SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']] if 'WEBSITE_HOSTNAME' in os.environ else []
+ALLOWED_HOSTS = [os.environ['http://runnin.azurewebsites.net/']] if 'http://runnin.azurewebsites.net/' in os.environ else []
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
