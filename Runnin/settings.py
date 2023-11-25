@@ -8,15 +8,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET = os.environ.get('SECRET')
 
-# Secret key for Azure db
-#SECRET = config('SECRET')
+# Secret key for local server
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [os.environ['http://runnin.azurewebsites.net/']] if 'http://runnin.azurewebsites.net/' in os.environ else []
+ALLOWED_HOSTS = [os.environ['http://runnin.azurewebsites.net/']] if 'http://runnin.azurewebsites.net/' in os.environ else ['*']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -166,5 +166,8 @@ ATHLETE_INFO = "https://www.strava.com/api/v3/athlete"
 
 STATIC_URL = '/static/'
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATIC_ROOT = [os.path.join(BASE_DIR, 'static')]
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+#STATIC_ROOT = [os.path.join(BASE_DIR, 'static')]
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
