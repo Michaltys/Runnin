@@ -8,12 +8,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
-SECRET = os.environ.get('SECRET')
+SECRET_KEY = os.environ.get('SECRET_KEY', config('SECRET_KEY'))
 
 # Secret key for local server
-SECRET_KEY = config('SECRET_KEY')
+#SECRET_KEY = config('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with debug turned on in production!django.core.exceptions.ImproperlyConfigured: The SECRET_KEY setting must not be empty.
 DEBUG = False
 
 ALLOWED_HOSTS = [os.environ['http://runnin.azurewebsites.net/']] if 'http://runnin.azurewebsites.net/' in os.environ else ['*']
