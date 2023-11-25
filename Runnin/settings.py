@@ -8,7 +8,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
-SECRET_KEY = os.environ.get('SECRET_KEY', config('SECRET_KEY'))
+#choose either local venv secret_key or azure prod secret_key
+SECRET_KEY = os.environ.get('SECRET_KEY') or config('SECRET_KEY')
 
 # Secret key for local server
 #SECRET_KEY = config('SECRET_KEY')
