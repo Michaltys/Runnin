@@ -8,8 +8,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
-#choose either local venv secret_key or azure prod secret_key
-SECRET_KEY = os.environ.get('SECRET_KEY') or config('SECRET_KEY')
+# Check if SECRET_KEY is set in environment variables
+if 'SECRET_KEY' in os.environ:
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+else:
+    # If not, get SECRET_KEY from .env file
+    SECRET_KEY = config('SECRET_KEY')
 
 # Secret key for local server
 #SECRET_KEY = config('SECRET_KEY')
@@ -18,6 +22,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY') or config('SECRET_KEY')
 DEBUG = False
 
 ALLOWED_HOSTS = [os.environ['http://runnin.azurewebsites.net/']] if 'http://runnin.azurewebsites.net/' in os.environ else ['*']
+
+ENABLE_ORYX_BUILD = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -53,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+#    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'Runnin.urls'
@@ -94,7 +100,6 @@ DATABASES = {
         'PORT': config('PORT'),
     }
 }
-
 
 
 #DATABASES = {
@@ -167,10 +172,7 @@ ACTIVITIES_URL = "https://www.strava.com/api/v3/athlete/activities"
 
 ATHLETE_INFO = "https://www.strava.com/api/v3/athlete"
 
-STATIC_URL = '/static/'
 
-#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-#STATIC_ROOT = [os.path.join(BASE_DIR, 'static')]
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
