@@ -38,28 +38,23 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Strava_integration',
 
-#error log:  ModuleNotFoundError: No module named 'social_django'
-    'social_django',
     
 
 ]
 
 AUTHENTICATION_BACKENDS = (
 
-#    'social_core.backends.strava.StravaOAuth2', 
-#    'social_core.backends.strava.StravaOAuth', 
     'django.contrib.auth.backends.ModelBackend',
 )
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = 'Runnin.urls'
@@ -145,8 +140,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
-
-STATIC_URL = '/static/'
 
 
 #API AUTH details
