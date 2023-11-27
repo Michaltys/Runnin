@@ -31,7 +31,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Strava_integration',
-    'social_django',
+
+#error log:  ModuleNotFoundError: No module named 'social_django'
+#    'social_django',
     
 
 ]
