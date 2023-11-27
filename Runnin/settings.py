@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'Strava_integration',
 
 #error log:  ModuleNotFoundError: No module named 'social_django'
-#    'social_django',
+    'social_django',
     
 
 ]
