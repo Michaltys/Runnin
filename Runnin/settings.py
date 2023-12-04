@@ -9,12 +9,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+# Check if SECRET_KEY is set in environment variables
+if 'SECRET_KEY' in os.environ:
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+else:
+    # If not, get SECRET_KEY from .env file
+    SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.environ['http://runnin.azurewebsites.net/']] if 'http://runnin.azurewebsites.net/' in os.environ else []
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -28,15 +33,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Strava_integration',
-    'social_django',
     
 
 ]
 
 AUTHENTICATION_BACKENDS = (
 
-    'social_core.backends.strava.StravaOAuth2', 
-    'social_core.backends.strava.StravaOAuth', 
+#    'social_core.backends.strava.StravaOAuth2', 
+#    'social_core.backends.strava.StravaOAuth', 
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -77,10 +81,15 @@ WSGI_APPLICATION = 'Runnin.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('NAME'),
+        'USER': config('USER'),
+        'PASSWORD': config('PASSWORD'),
+        'HOST': config('HOST'),
+        'PORT': config('PORT'),
     }
 }
+#trzeba dodać bazę os.environ do łączenia bazy z Azure
 
 
 # Password validation
