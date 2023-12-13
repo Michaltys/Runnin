@@ -4,6 +4,7 @@ from Strava_integration.models import Athlete, Activity, Comment, Kudoers
 from django.conf import settings
 from django.http import JsonResponse, Http404, HttpResponseServerError, HttpResponseNotFound
 from django.utils import timezone
+from datetime import datetime, timedelta
 
 #landing page of the app
 def landing_page(request): 
@@ -177,37 +178,40 @@ def list_athletes(request):
 
 #get request for all athletes' activities
 def get_activities(request, athlete_id):
-    #gets athlete's all activities list
+    global last_request_time
     try:
         athlete = Athlete.objects.get(id=athlete_id)
     except Athlete.DoesNotExist:
         raise Http404(f"Athlete with ID {athlete_id} does not exist.")
-    
+
     if not is_token_valid(athlete):
         if not refresh_access_token(athlete):
-            # Handle token refresh failure e.g. return, raise error, log etc.
             return JsonResponse({"error": "Failed to refresh access token"}, status=500)
-     
-    headers = {
-        'Authorization': f"Bearer {athlete.access_token}"
-    }
+
+    headers = {'Authorization': f"Bearer {athlete.access_token}"}
     ACTIVITIES_URL = settings.ACTIVITIES_URL
+    activities_per_page = 20
+    max_pages_per_batch = 10
     all_activities = []
 
-    # iteration through pages 1-10
-    for page in range(1, 20):
-        param = {'per_page': 200, 'page': page}
+    for page in range(1, max_pages_per_batch + 1):
+
+        param = {'per_page': activities_per_page, 'page': page}
         response = requests.get(ACTIVITIES_URL, headers=headers, params=param)
+        last_request_time = datetime.now()
+
+        if response.status_code == 429:
+            print(f"Requests limit exceeded, wait 15min")
+
+            response = requests.get(ACTIVITIES_URL, headers=headers, params=param)
 
         if response.status_code != 200:
-            # Kontynuacja w przypadku błędu na jednej ze stron
             continue
 
         try:
             activity_data_list = response.json()
             all_activities.extend(activity_data_list)
-        except ValueError:  # obejmuje simplejson.decoder.JSONDecodeError
-            # Obsługa błędu dekodowania JSON, kontynuacja pętli
+        except ValueError:
             continue
 
     for activity_data in all_activities:
@@ -247,9 +251,12 @@ def get_activities_instance(activity_data, athlete):
         'max_heartrate': activity_data.get('max_heartrate', None),
         'pr_count': activity_data.get('pr_count', 0),
         'total_photo_count': activity_data.get('total_photo_count', 0),
-        'has_kudoed': activity_data.get('has_kudoed', False)
+        'has_kudoed': activity_data.get('has_kudoed', False),
+        'average_watts': activity_data.get('average_watts', 0),
+        'weighted_average_watts': activity_data.get('weighted_average_watts', 0),
+        'kilojoules': activity_data.get('kilojoules', 0),
+        'max_watts': activity_data.get('max_watts', 0),
     }
-
     activity, created = Activity.objects.get_or_create(activity_id=activity_data['id'], defaults=defaults)
 
     # Update only if the object already existed

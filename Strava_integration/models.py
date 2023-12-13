@@ -51,7 +51,12 @@ class Activity(models.Model):
     achievement_count = models.IntegerField()
     kudos_count = models.IntegerField()
     comment_count = models.IntegerField()
-    
+    average_watts = models.IntegerField(null = True, blank = True)
+    weighted_average_watts = models.IntegerField(null = True, blank = True)
+    kilojoules = models.IntegerField(null = True, blank = True)
+    max_watts = models.IntegerField(null = True, blank = True)
+
+
     average_heartrate = models.FloatField(null=True, blank=True)
     average_temp = models.IntegerField(null=True, blank=True)
     has_kudoed = models.BooleanField(default=False)
